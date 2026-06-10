@@ -35,42 +35,41 @@
       z-index: 1000;
     }
 
-    .top-bar h5 {
-      margin: 0;
-      font-weight: 600;
-      font-size: 1.1rem;
+    .top-bar h5 { margin: 0; font-weight: 600; font-size: 1.1rem; }
+
+    /* Notice Board Style */
+    .notice-board {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: none; /* ডিফল্টভাবে লুকানো */
     }
+    .notice-title { font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
 
     .search-container {
       background: white;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      margin-top: 20px;
+      margin-top: 10px;
       text-align: center;
     }
 
-    .search-icon {
-      font-size: 3rem;
-      margin-bottom: 10px;
-    }
+    .search-icon { font-size: 3rem; margin-bottom: 10px; }
 
     .info-card {
-      border-radius: 8px;
-      padding: 15px;
-      color: white;
-      margin-bottom: 15px;
+      border-radius: 8px; padding: 15px; color: white; margin-bottom: 15px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 100px;
+      display: flex; flex-direction: column; justify-content: center; min-height: 100px;
     }
-
     .info-label { font-size: 0.85rem; font-weight: 500; opacity: 0.9; }
     .info-value { font-size: 1.3rem; font-weight: 700; margin-top: 5px; }
 
-    /* Custom Colors */
     .bg-name { background-color: #ff9800; color: #000; }
     .bg-meat { background-color: #fff; color: #ff9800; border: 1px solid #ff9800; }
     .bg-status { background-color: #388e3c; }
@@ -79,45 +78,30 @@
     .bg-ration { background-color: #f8bbd0; color: #000; }
 
     .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 20px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px;
     }
-
-    @media (min-width: 768px) {
-      .calendar-grid { grid-template-columns: repeat(4, 1fr); }
-    }
+    @media (min-width: 768px) { .calendar-grid { grid-template-columns: repeat(4, 1fr); } }
 
     .day-card {
-      padding: 10px;
-      border-radius: 6px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.2s;
-      border: 1px solid rgba(0,0,0,0.1);
-      font-size: 0.9rem;
+      padding: 10px; border-radius: 6px; text-align: center; cursor: pointer;
+      transition: transform 0.2s; border: 1px solid rgba(0,0,0,0.1); font-size: 0.9rem;
     }
-
     .day-card:active { transform: scale(0.98); }
     .day-date { font-weight: 600; font-size: 0.8rem; margin-bottom: 5px; display: block; }
     .day-val { font-weight: bold; font-size: 1.1rem; }
 
     .footer {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background-color: #fff;
-      text-align: center;
-      padding: 10px;
-      font-size: 0.8rem;
-      color: #666;
-      border-top: 1px solid #eee;
-      z-index: 999;
+      position: fixed; bottom: 0; width: 100%; background-color: #fff;
+      text-align: center; padding: 10px; font-size: 0.8rem; color: #666;
+      border-top: 1px solid #eee; z-index: 999;
     }
 
     #loader { display: none; }
     #resultSection { display: none; }
+
+    /* Annual Report Table Styles */
+    .report-table-container { max-height: 300px; overflow-y: auto; }
+    .report-table th { background-color: #f8f9fa; position: sticky; top: 0; }
   </style>
 </head>
 <body>
@@ -128,23 +112,41 @@
 
   <div class="container mb-5">
     
+    <!-- Notice Board Section -->
+    <div id="noticeBoard" class="notice-board">
+        <div class="notice-title"><i class="fas fa-bullhorn"></i> নোটিশ বোর্ড:</div>
+        <div id="noticeContent"></div>
+    </div>
+
     <div class="search-container">
       <div class="search-icon">👨‍✈️</div>
-      <h4 class="mb-3">মার্চ মাসের মিল হিসাব দেখুন</h4>
+      <h4 class="mb-3">মিল হিসাব দেখুন</h4>
+      
+      <div class="mb-3 text-start">
+        <label for="monthSelect" class="form-label fw-bold">মাস নির্বাচন করুন:</label>
+        <select class="form-select form-select-lg" id="monthSelect">
+            <option value="" selected disabled>লোড হচ্ছে...</option>
+        </select>
+      </div>
       
       <div class="mb-3 text-start">
         <label for="searchInput" class="form-label fw-bold">আপনার নাম্বার প্রবেশ করুন:</label>
         <input type="number" class="form-control form-control-lg bg-light" id="searchInput" placeholder="ইংরেজিতে লিখুন - উদাহরণ 1014">
       </div>
 
-      <button class="btn btn-primary w-100 btn-lg fw-bold" onclick="handleSearch()" id="searchBtn">
-        মিল দেখুন
-      </button>
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary btn-lg fw-bold" onclick="handleSearch()" id="searchBtn">
+          মিল দেখুন
+        </button>
+        
+        <!-- Annual Report Button -->
+        <button class="btn btn-outline-success btn-lg fw-bold" onclick="handleAnnualReport()">
+          📊 বাৎসরিক হিসাব দেখুন
+        </button>
+      </div>
 
       <div id="loader" class="mt-3">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
         <p class="mt-2">অনুসন্ধান চলছে...</p>
       </div>
     </div>
@@ -153,56 +155,16 @@
       <h5 class="mt-4 mb-3 ps-1 border-start border-4 border-primary">সদস্যের তথ্য:</h5>
       
       <div class="row g-2">
-        
-        <div class="col-6">
-          <div class="info-card bg-name">
-            <span class="info-label" id="lblName">নাম</span>
-            <span class="info-value" id="resName">--</span>
-          </div>
-        </div>
-
-        <div class="col-6">
-          <div class="info-card bg-meat">
-            <span class="info-label" id="lblMeat">পছন্দের মাংস</span>
-            <span class="info-value" id="resMeat">--</span>
-          </div>
-        </div>
-
-        <div class="col-6">
-          <div class="info-card bg-status">
-            <span class="info-label" id="lblStatus">মেস স্ট্যাটাস</span>
-            <span class="info-value" id="resStatus">--</span>
-          </div>
-        </div>
-
-        <div class="col-6">
-          <div class="info-card bg-meals">
-            <span class="info-label" id="lblTotalMeals">মোট মিল সংখ্যা</span>
-            <span class="info-value" id="resTotalMeals">--</span>
-          </div>
-        </div>
-
-        <div class="col-6">
-          <div class="info-card bg-amount">
-            <span class="info-label" id="lblAmount">টাকার পরিমাণ</span>
-            <!-- এখানে লজিক্যাল টেক্সট দেখানো হবে -->
-            <span class="info-value" id="resAmount">--</span>
-          </div>
-        </div>
-
-        <div class="col-6">
-          <div class="info-card bg-ration">
-            <span class="info-label" id="lblRation">রেশন সদস্য সংখ্যা</span>
-            <span class="info-value" id="resRation">--</span>
-          </div>
-        </div>
-
+        <div class="col-6"><div class="info-card bg-name"><span class="info-label" id="lblName">নাম</span><span class="info-value" id="resName">--</span></div></div>
+        <div class="col-6"><div class="info-card bg-meat"><span class="info-label" id="lblMeat">পছন্দের মাংস</span><span class="info-value" id="resMeat">--</span></div></div>
+        <div class="col-6"><div class="info-card bg-status"><span class="info-label" id="lblStatus">মেস স্ট্যাটাস</span><span class="info-value" id="resStatus">--</span></div></div>
+        <div class="col-6"><div class="info-card bg-meals"><span class="info-label" id="lblTotalMeals">মোট মিল সংখ্যা</span><span class="info-value" id="resTotalMeals">--</span></div></div>
+        <div class="col-6"><div class="info-card bg-amount"><span class="info-label" id="lblAmount">টাকার পরিমাণ</span><span class="info-value" id="resAmount">--</span></div></div>
+        <div class="col-6"><div class="info-card bg-ration"><span class="info-label" id="lblRation">রেশন সদস্য সংখ্যা</span><span class="info-value" id="resRation">--</span></div></div>
       </div>
 
-      <h5 class="mt-4 mb-2 ps-1 border-start border-4 border-success">দৈনিক মিল বিবরণী <small>(যে তারিখে মিল ভুল হয়েছে তার ওপরে ক্লিক করে সংশোধনের জন্য আবেদন করুন। জেনে রাখুন, 1 মানে ফুল মিল, 0.5 মানে হাফ মিল, 0 বা অন্যান্য মানে মেস বন্ধ ছিলো):)</small></h5>
-      <div class="calendar-grid" id="calendarGrid">
-      </div>
-
+      <h5 class="mt-4 mb-2 ps-1 border-start border-4 border-success">দৈনিক মিল বিবরণী <small>(সংশোধনের জন্য ক্লিক করুন)</small></h5>
+      <div class="calendar-grid" id="calendarGrid"></div>
     </div>
   </div>
 
@@ -211,11 +173,11 @@
   </div>
 
   <script>
-    // ============================================================
+    // ==========================================
     // VERCEL/NETLIFY HOSTING HELPER (POLYFILL FOR GOOGLE.SCRIPT.RUN)
-    // ============================================================
-    // আপনার Google Apps Script-এর Web App URL-টি নিচে দিন (Deploy করার পর যে লিংক পাবেন):
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw1CU_KpmBtQvVEGPkEYtsZnX_AxBPXQgpxnkZpg0AKrK6xuvJBfMi-cZfWfR_FmHOlgw/exec"; 
+    // ==========================================
+    // আপনার Google Apps Script-এর Web App URL-টি নিচে দিন:
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwxjjh2PpaYA1LWqGIqty-c2PFi6T84QNVuMX1lcGYJn3F6x9OXxXFDx8mt4XQwQeP6/exec"; 
 
     if (typeof google === 'undefined' || !google.script) {
         window.google = {
@@ -244,7 +206,7 @@
                                 return target[prop];
                             }
 
-                            // অন্য যেকোনো ফাংশন (যেমন: searchData, submitCorrection ইত্যাদি) কল হলে নিচে রান হবে
+                            // অন্য যেকোনো ফাংশন (যেমন: searchData, getAnnualReport ইত্যাদি) কল হলে নিচে রান হবে
                             return function(...args) {
                                 // Vercel থেকে Apps Script-এ ডাটা পাঠানোর জন্য standard Fetch API
                                 fetch(GAS_WEB_APP_URL, {
@@ -276,19 +238,56 @@
             }
         };
     }
-    // ============================================================
+    // ==========================================
     // END POLYFILL
-    // ============================================================
+    // ==========================================
 
     document.getElementById('year').textContent = new Date().getFullYear();
     let currentUser = {};
+    let currentSelectedMonth = "";
+
+    window.onload = function() {
+        loadMonths();
+        loadSettings(); // Notice লোড করার জন্য
+    };
+
+    function loadSettings() {
+        google.script.run.withSuccessHandler(function(settings) {
+            if(settings.notice && settings.notice.trim() !== "") {
+                const board = document.getElementById('noticeBoard');
+                const content = document.getElementById('noticeContent');
+                content.innerHTML = settings.notice; 
+                board.style.display = "block";
+            }
+        }).getSettings();
+    }
+
+    function loadMonths() {
+        google.script.run.withSuccessHandler(function(months) {
+            const select = document.getElementById('monthSelect');
+            select.innerHTML = "";
+            if(months.length === 0) {
+                const option = document.createElement('option');
+                option.text = "কোনো মাস পাওয়া যায়নি";
+                select.add(option);
+                return;
+            }
+            months.forEach(function(month) {
+                const option = document.createElement('option');
+                option.value = month;
+                option.text = month;
+                select.add(option);
+            });
+            if(months.length > 0) select.selectedIndex = months.length - 1;
+        }).getAvailableMonths();
+    }
 
     function handleSearch() {
       const id = document.getElementById('searchInput').value;
-      if (!id) {
-        Swal.fire('ত্রুটি', 'দয়া করে নাম্বার প্রদান করুন', 'warning');
-        return;
-      }
+      currentSelectedMonth = document.getElementById('monthSelect').value;
+
+      if (!id) { Swal.fire('ত্রুটি', 'দয়া করে নাম্বার প্রদান করুন', 'warning'); return; }
+      if (!currentSelectedMonth) { Swal.fire('ত্রুটি', 'দয়া করে একটি মাস নির্বাচন করুন', 'warning'); return; }
 
       document.getElementById('searchBtn').disabled = true;
       document.getElementById('loader').style.display = 'block';
@@ -297,24 +296,88 @@
       google.script.run
         .withSuccessHandler(showResults)
         .withFailureHandler(showError)
-        .searchData(id);
+        .searchData(id, currentSelectedMonth);
+    }
+
+    // Annual Report Handler
+    function handleAnnualReport() {
+        const id = document.getElementById('searchInput').value;
+        if(!id) {
+            Swal.fire('প্রয়োজন', 'বাৎসরিক হিসাব দেখতে আপনার নাম্বারটি প্রথমে লিখুন।', 'info');
+            return;
+        }
+
+        Swal.fire({
+            title: 'লোড হচ্ছে...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        google.script.run
+            .withSuccessHandler(function(response) {
+                if(!response.success) {
+                    Swal.fire('ত্রুটি', response.error, 'error');
+                    return;
+                }
+                
+                // টেবিল তৈরি
+                let tableHtml = `
+                    <div class="report-table-container">
+                        <table class="table table-bordered table-striped report-table">
+                            <thead>
+                                <tr>
+                                    <th>মাস</th>
+                                    <th class="text-end">মোট মিল</th>
+                                    <th class="text-end">টাকার পরিমাণ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                response.report.forEach(row => {
+                    let amountClass = row.amount > 0 ? 'text-danger' : (row.amount < 0 ? 'text-success' : '');
+                    let amountText = row.amount > 0 ? `বাকি ${row.amount}` : (row.amount < 0 ? `পাবেন ${Math.abs(row.amount)}` : '0');
+                    
+                    tableHtml += `
+                        <tr>
+                            <td>${row.month}</td>
+                            <td class="text-end">${row.meals}</td>
+                            <td class="text-end fw-bold ${amountClass}">${amountText}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `</tbody></table></div>`;
+                
+                // সামারি
+                let totalClass = response.grandTotal > 0 ? 'text-danger' : (response.grandTotal < 0 ? 'text-success' : 'text-dark');
+                let totalText = response.grandTotal > 0 ? `সর্বমোট বাকি: ${response.grandTotal} টাকা` : (response.grandTotal < 0 ? `সর্বমোট পাবেন: ${Math.abs(response.grandTotal)} টাকা` : 'হিসাব মিলেছে');
+
+                Swal.fire({
+                    title: '📊 বাৎসরিক হিসাব',
+                    html: `
+                        ${tableHtml}
+                        <hr>
+                        <h5 class="text-end ${totalClass}">${totalText}</h5>
+                    `,
+                    width: '100%',
+                    confirmButtonText: 'বন্ধ করুন'
+                });
+            })
+            .getAnnualReport(id);
     }
 
     function showResults(response) {
       document.getElementById('searchBtn').disabled = false;
       document.getElementById('loader').style.display = 'none';
 
-      if (response.error) {
-        Swal.fire('দুঃখিত', response.error, 'error');
-        return;
-      }
+      if (response.error) { Swal.fire('দুঃখিত', response.error, 'error'); return; }
 
       const data = response.data;
       const meals = response.meals;
       const labels = response.labels || {};
       currentUser = data; 
 
-      // --- Update Dynamic Labels ---
       if(labels.name) document.getElementById('lblName').innerText = labels.name;
       if(labels.meat) document.getElementById('lblMeat').innerText = labels.meat;
       if(labels.status) document.getElementById('lblStatus').innerText = labels.status;
@@ -322,50 +385,31 @@
       if(labels.amount) document.getElementById('lblAmount').innerText = labels.amount;
       if(labels.ration) document.getElementById('lblRation').innerText = labels.ration;
       
-      // --- Update Values ---
       document.getElementById('resName').innerText = data.name;
       document.getElementById('resMeat').innerText = data.meat;
       document.getElementById('resStatus').innerText = data.status;
       document.getElementById('resTotalMeals').innerText = data.totalMeals;
       document.getElementById('resRation').innerText = data.rationMembers;
 
-      // --- Amount Logic (Positive vs Negative) ---
       let amountVal = parseFloat(data.totalAmount);
       let amountText = "";
-
-      if (amountVal > 0) {
-        // পজিটিভ হলে: আপনার থেকে মেস পাবে
-        amountText = `আপনার থেকে মেস পাবে ${amountVal} টাকা`;
-      } else if (amountVal < 0) {
-        // নেগেটিভ হলে: আপনি মেস থেকে পাবেন
-        amountText = `আপনি মেস থেকে পাবেন ${Math.abs(amountVal)} টাকা`;
-      } else {
-        amountText = "0 টাকা";
-      }
+      if (amountVal > 0) { amountText = `আপনার থেকে মেস পাবে ${amountVal} টাকা`; } 
+      else if (amountVal < 0) { amountText = `আপনি মেস থেকে পাবেন ${Math.abs(amountVal)} টাকা`; } 
+      else { amountText = "0 টাকা"; }
       document.getElementById('resAmount').innerText = amountText;
 
-
-      // Populate Calendar Grid
       const grid = document.getElementById('calendarGrid');
       grid.innerHTML = '';
-
       meals.forEach(day => {
         if(!day.dateHeader && day.value === "") return; 
-
         const div = document.createElement('div');
         div.className = 'day-card shadow-sm';
         div.style.backgroundColor = day.color;
         div.style.color = getContrastYIQ(day.color); 
-
-        div.innerHTML = `
-          <span class="day-date">${formatDateHeader(day.dateHeader)}</span>
-          <span class="day-val">${day.value === "" ? "-" : day.value}</span>
-        `;
-
+        div.innerHTML = `<span class="day-date">${formatDateHeader(day.dateHeader)}</span><span class="day-val">${day.value === "" ? "-" : day.value}</span>`;
         div.onclick = () => openEditModal(day);
         grid.appendChild(div);
       });
-
       document.getElementById('resultSection').style.display = 'block';
     }
 
@@ -396,17 +440,17 @@
 
     function openEditModal(dayData) {
       window.history.pushState({modalOpen: true}, "Edit Modal", "#edit");
-
       Swal.fire({
         title: 'সংশোধন অনুরোধ',
         html: `
           <div class="text-start">
+            <p><strong>মাস:</strong> ${currentSelectedMonth}</p>
             <p><strong>তারিখ:</strong> ${dayData.dateHeader}</p>
             <p><strong>বর্তমান মিল:</strong> ${dayData.value}</p>
             <label class="form-label">নতুন মিল:</label>
             <input type="number" id="newValue" class="form-control mb-2" placeholder="উদাহরণ: 1 বা 0.5 বা 0">
             <label class="form-label">কারণ:</label>
-            <textarea id="reason" class="form-control" placeholder="কি ভুল হয়েছে তার বিবরণ দিন। যেমন, আমি স্কর্ট গিয়েছিলাম বা আমি আপনাকে বলেছিলাম আপনি হয়তো ভুলে গেছেন ইত্যাদি"></textarea>
+            <textarea id="reason" class="form-control" placeholder="বিবরণ দিন..."></textarea>
           </div>
         `,
         showCancelButton: true,
@@ -416,51 +460,28 @@
         preConfirm: () => {
           const newVal = document.getElementById('newValue').value;
           const reason = document.getElementById('reason').value;
-          if (!newVal || !reason) {
-            Swal.showValidationMessage('অনুগ্রহ করে নতুন মান এবং কারণ লিখুন');
-            return false;
-          }
+          if (!newVal || !reason) { Swal.showValidationMessage('অনুগ্রহ করে নতুন মান এবং কারণ লিখুন'); return false; }
           return { newVal, reason };
         }
       }).then((result) => {
-        if (window.history.state && window.history.state.modalOpen) {
-          window.history.back();
-        }
-        if (result.isConfirmed) {
-          submitRequest(dayData, result.value);
-        }
+        if (window.history.state && window.history.state.modalOpen) { window.history.back(); }
+        if (result.isConfirmed) { submitRequest(dayData, result.value); }
       });
     }
 
     window.onpopstate = function(event) {
-      if(Swal.isVisible()) {
-        Swal.close();
-      }
+      if(Swal.isVisible()) { Swal.close(); }
     };
 
     function submitRequest(dayData, inputData) {
-      Swal.fire({
-        title: 'অপেক্ষা করুন...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-      });
-
+      Swal.fire({ title: 'অপেক্ষা করুন...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
       const reqPayload = {
-        id: currentUser.number,
-        name: currentUser.name,
-        dateHeader: dayData.dateHeader,
-        oldValue: dayData.value,
-        newValue: inputData.newVal,
-        reason: inputData.reason
+        id: currentUser.number, name: currentUser.name, monthName: currentSelectedMonth,
+        dateHeader: dayData.dateHeader, oldValue: dayData.value, newValue: inputData.newVal, reason: inputData.reason
       };
-
       google.script.run
         .withSuccessHandler((res) => {
-          Swal.fire(
-            res.success ? 'সফল!' : 'ব্যর্থ',
-            res.message,
-            res.success ? 'success' : 'error'
-          );
+          Swal.fire(res.success ? 'সফল!' : 'ব্যর্থ', res.message, res.success ? 'success' : 'error');
         })
         .submitCorrection(reqPayload);
     }
