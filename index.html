@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meal Management System</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --primary-color: #0d6efd;
+      --bg-light: #f4f6f9;
+      --police-blue: #1a237e;
+    }
+
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      background-color: var(--bg-light);
+      margin: 0;
+      padding-bottom: 60px;
+    }
+
+    .top-bar {
+      background-color: var(--police-blue);
+      color: white;
+      padding: 15px 0;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .top-bar h5 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .search-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .search-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .info-card {
+      border-radius: 8px;
+      padding: 15px;
+      color: white;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100px;
+    }
+
+    .info-label { font-size: 0.85rem; font-weight: 500; opacity: 0.9; }
+    .info-value { font-size: 1.3rem; font-weight: 700; margin-top: 5px; }
+
+    /* Custom Colors */
+    .bg-name { background-color: #ff9800; color: #000; }
+    .bg-meat { background-color: #fff; color: #ff9800; border: 1px solid #ff9800; }
+    .bg-status { background-color: #388e3c; }
+    .bg-meals { background-color: #2196f3; color: white; }
+    .bg-amount { background-color: #e57373; }
+    .bg-ration { background-color: #f8bbd0; color: #000; }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .calendar-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .day-card {
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      border: 1px solid rgba(0,0,0,0.1);
+      font-size: 0.9rem;
+    }
+
+    .day-card:active { transform: scale(0.98); }
+    .day-date { font-weight: 600; font-size: 0.8rem; margin-bottom: 5px; display: block; }
+    .day-val { font-weight: bold; font-size: 1.1rem; }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #fff;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.8rem;
+      color: #666;
+      border-top: 1px solid #eee;
+      z-index: 999;
+    }
+
+    #loader { display: none; }
+    #resultSection { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <h5>জেলা পুলিশ লাইন্স মেস, ব্রাহ্মণবাড়িয়া</h5>
+  </div>
+
+  <div class="container mb-5">
+    
+    <div class="search-container">
+      <div class="search-icon">👨‍✈️</div>
+      <h4 class="mb-3">মার্চ মাসের মিল হিসাব দেখুন</h4>
+      
+      <div class="mb-3 text-start">
+        <label for="searchInput" class="form-label fw-bold">আপনার নাম্বার প্রবেশ করুন:</label>
+        <input type="number" class="form-control form-control-lg bg-light" id="searchInput" placeholder="ইংরেজিতে লিখুন - উদাহরণ 1014">
+      </div>
+
+      <button class="btn btn-primary w-100 btn-lg fw-bold" onclick="handleSearch()" id="searchBtn">
+        মিল দেখুন
+      </button>
+
+      <div id="loader" class="mt-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">অনুসন্ধান চলছে...</p>
+      </div>
+    </div>
+
+    <div id="resultSection">
+      <h5 class="mt-4 mb-3 ps-1 border-start border-4 border-primary">সদস্যের তথ্য:</h5>
+      
+      <div class="row g-2">
+        
+        <div class="col-6">
+          <div class="info-card bg-name">
+            <span class="info-label" id="lblName">নাম</span>
+            <span class="info-value" id="resName">--</span>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="info-card bg-meat">
+            <span class="info-label" id="lblMeat">পছন্দের মাংস</span>
+            <span class="info-value" id="resMeat">--</span>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="info-card bg-status">
+            <span class="info-label" id="lblStatus">মেস স্ট্যাটাস</span>
+            <span class="info-value" id="resStatus">--</span>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="info-card bg-meals">
+            <span class="info-label" id="lblTotalMeals">মোট মিল সংখ্যা</span>
+            <span class="info-value" id="resTotalMeals">--</span>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="info-card bg-amount">
+            <span class="info-label" id="lblAmount">টাকার পরিমাণ</span>
+            <!-- এখানে লজিক্যাল টেক্সট দেখানো হবে -->
+            <span class="info-value" id="resAmount">--</span>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="info-card bg-ration">
+            <span class="info-label" id="lblRation">রেশন সদস্য সংখ্যা</span>
+            <span class="info-value" id="resRation">--</span>
+          </div>
+        </div>
+
+      </div>
+
+      <h5 class="mt-4 mb-2 ps-1 border-start border-4 border-success">দৈনিক মিল বিবরণী <small>(যে তারিখে মিল ভুল হয়েছে তার ওপরে ক্লিক করে সংশোধনের জন্য আবেদন করুন। জেনে রাখুন, 1 মানে ফুল মিল, 0.5 মানে হাফ মিল, 0 বা অন্যান্য মানে মেস বন্ধ ছিলো):)</small></h5>
+      <div class="calendar-grid" id="calendarGrid">
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; <span id="year"></span> District Police Lines Mess, Brahmanbaria
+  </div>
+
+  <script>
+    // ============================================================
+    // VERCEL/NETLIFY HOSTING HELPER (POLYFILL FOR GOOGLE.SCRIPT.RUN)
+    // ============================================================
+    // আপনার Google Apps Script-এর Web App URL-টি নিচে দিন (Deploy করার পর যে লিংক পাবেন):
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw1CU_KpmBtQvVEGPkEYtsZnX_AxBPXQgpxnkZpg0AKrK6xuvJBfMi-cZfWfR_FmHOlgw/exec"; 
+
+    if (typeof google === 'undefined' || !google.script) {
+        window.google = {
+            script: {
+                run: (() => {
+                    let successHandler = (res) => console.log("Success:", res);
+                    let failureHandler = (err) => console.error("Failure:", err);
+
+                    // হ্যান্ডলার সেট করার জন্য চেইনিং অবজেক্ট
+                    const handlerChain = {
+                        withSuccessHandler: function(callback) {
+                            successHandler = callback;
+                            return this;
+                        },
+                        withFailureHandler: function(callback) {
+                            failureHandler = callback;
+                            return this;
+                        }
+                    };
+
+                    // Apps Script-এর ব্যাকএন্ড ফাংশনগুলোকে এখানে ডাইনামিক্যালি হ্যান্ডেল করা হচ্ছে
+                    return new Proxy(handlerChain, {
+                        get: function(target, prop) {
+                            // যদি withSuccessHandler বা withFailureHandler কল হয়
+                            if (prop in target) {
+                                return target[prop];
+                            }
+
+                            // অন্য যেকোনো ফাংশন (যেমন: searchData, submitCorrection ইত্যাদি) কল হলে নিচে রান হবে
+                            return function(...args) {
+                                // Vercel থেকে Apps Script-এ ডাটা পাঠানোর জন্য standard Fetch API
+                                fetch(GAS_WEB_APP_URL, {
+                                    method: 'POST',
+                                    mode: 'cors', // CORS ব্লক এড়ানোর জন্য
+                                    headers: {
+                                        'Content-Type': 'text/plain;charset=utf-8' // Apps Script-এর জন্য উপযোগী ফরম্যাট
+                                    },
+                                    body: JSON.stringify({
+                                        functionName: prop,
+                                        arguments: args
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(res => {
+                                    if (res.success === false && res.error) {
+                                        failureHandler(res.error);
+                                    } else {
+                                        successHandler(res);
+                                    }
+                                })
+                                .catch(err => {
+                                    failureHandler(err.message || err);
+                                });
+                            };
+                        }
+                    });
+                })()
+            }
+        };
+    }
+    // ============================================================
+    // END POLYFILL
+    // ============================================================
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+    let currentUser = {};
+
+    function handleSearch() {
+      const id = document.getElementById('searchInput').value;
+      if (!id) {
+        Swal.fire('ত্রুটি', 'দয়া করে নাম্বার প্রদান করুন', 'warning');
+        return;
+      }
+
+      document.getElementById('searchBtn').disabled = true;
+      document.getElementById('loader').style.display = 'block';
+      document.getElementById('resultSection').style.display = 'none';
+
+      google.script.run
+        .withSuccessHandler(showResults)
+        .withFailureHandler(showError)
+        .searchData(id);
+    }
+
+    function showResults(response) {
+      document.getElementById('searchBtn').disabled = false;
+      document.getElementById('loader').style.display = 'none';
+
+      if (response.error) {
+        Swal.fire('দুঃখিত', response.error, 'error');
+        return;
+      }
+
+      const data = response.data;
+      const meals = response.meals;
+      const labels = response.labels || {};
+      currentUser = data; 
+
+      // --- Update Dynamic Labels ---
+      if(labels.name) document.getElementById('lblName').innerText = labels.name;
+      if(labels.meat) document.getElementById('lblMeat').innerText = labels.meat;
+      if(labels.status) document.getElementById('lblStatus').innerText = labels.status;
+      if(labels.totalMeals) document.getElementById('lblTotalMeals').innerText = labels.totalMeals;
+      if(labels.amount) document.getElementById('lblAmount').innerText = labels.amount;
+      if(labels.ration) document.getElementById('lblRation').innerText = labels.ration;
+      
+      // --- Update Values ---
+      document.getElementById('resName').innerText = data.name;
+      document.getElementById('resMeat').innerText = data.meat;
+      document.getElementById('resStatus').innerText = data.status;
+      document.getElementById('resTotalMeals').innerText = data.totalMeals;
+      document.getElementById('resRation').innerText = data.rationMembers;
+
+      // --- Amount Logic (Positive vs Negative) ---
+      let amountVal = parseFloat(data.totalAmount);
+      let amountText = "";
+
+      if (amountVal > 0) {
+        // পজিটিভ হলে: আপনার থেকে মেস পাবে
+        amountText = `আপনার থেকে মেস পাবে ${amountVal} টাকা`;
+      } else if (amountVal < 0) {
+        // নেগেটিভ হলে: আপনি মেস থেকে পাবেন
+        amountText = `আপনি মেস থেকে পাবেন ${Math.abs(amountVal)} টাকা`;
+      } else {
+        amountText = "0 টাকা";
+      }
+      document.getElementById('resAmount').innerText = amountText;
+
+
+      // Populate Calendar Grid
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      meals.forEach(day => {
+        if(!day.dateHeader && day.value === "") return; 
+
+        const div = document.createElement('div');
+        div.className = 'day-card shadow-sm';
+        div.style.backgroundColor = day.color;
+        div.style.color = getContrastYIQ(day.color); 
+
+        div.innerHTML = `
+          <span class="day-date">${formatDateHeader(day.dateHeader)}</span>
+          <span class="day-val">${day.value === "" ? "-" : day.value}</span>
+        `;
+
+        div.onclick = () => openEditModal(day);
+        grid.appendChild(div);
+      });
+
+      document.getElementById('resultSection').style.display = 'block';
+    }
+
+    function showError(error) {
+      document.getElementById('searchBtn').disabled = false;
+      document.getElementById('loader').style.display = 'none';
+      Swal.fire('সার্ভার ত্রুটি', 'চেষ্টা করুন আবার', 'error');
+    }
+
+    function formatDateHeader(header) {
+      if (!header) return "Date";
+      if (header.includes('/')) {
+        const parts = header.split('/');
+        return parts[0] + '<br><small>' + (parts[1] || '').replace(',', '') + '</small>';
+      }
+      return header;
+    }
+
+    function getContrastYIQ(hexcolor){
+      if(!hexcolor || hexcolor === '#ffffff') return 'black';
+      hexcolor = hexcolor.replace("#", "");
+      var r = parseInt(hexcolor.substr(0,2),16);
+      var g = parseInt(hexcolor.substr(2,2),16);
+      var b = parseInt(hexcolor.substr(4,2),16);
+      var yiq = ((r*299)+(g*587)+(b*114))/1000;
+      return (yiq >= 128) ? 'black' : 'white';
+    }
+
+    function openEditModal(dayData) {
+      window.history.pushState({modalOpen: true}, "Edit Modal", "#edit");
+
+      Swal.fire({
+        title: 'সংশোধন অনুরোধ',
+        html: `
+          <div class="text-start">
+            <p><strong>তারিখ:</strong> ${dayData.dateHeader}</p>
+            <p><strong>বর্তমান মিল:</strong> ${dayData.value}</p>
+            <label class="form-label">নতুন মিল:</label>
+            <input type="number" id="newValue" class="form-control mb-2" placeholder="উদাহরণ: 1 বা 0.5 বা 0">
+            <label class="form-label">কারণ:</label>
+            <textarea id="reason" class="form-control" placeholder="কি ভুল হয়েছে তার বিবরণ দিন। যেমন, আমি স্কর্ট গিয়েছিলাম বা আমি আপনাকে বলেছিলাম আপনি হয়তো ভুলে গেছেন ইত্যাদি"></textarea>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'জমা দিন',
+        cancelButtonText: 'বাতিল',
+        confirmButtonColor: '#0d6efd',
+        preConfirm: () => {
+          const newVal = document.getElementById('newValue').value;
+          const reason = document.getElementById('reason').value;
+          if (!newVal || !reason) {
+            Swal.showValidationMessage('অনুগ্রহ করে নতুন মান এবং কারণ লিখুন');
+            return false;
+          }
+          return { newVal, reason };
+        }
+      }).then((result) => {
+        if (window.history.state && window.history.state.modalOpen) {
+          window.history.back();
+        }
+        if (result.isConfirmed) {
+          submitRequest(dayData, result.value);
+        }
+      });
+    }
+
+    window.onpopstate = function(event) {
+      if(Swal.isVisible()) {
+        Swal.close();
+      }
+    };
+
+    function submitRequest(dayData, inputData) {
+      Swal.fire({
+        title: 'অপেক্ষা করুন...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const reqPayload = {
+        id: currentUser.number,
+        name: currentUser.name,
+        dateHeader: dayData.dateHeader,
+        oldValue: dayData.value,
+        newValue: inputData.newVal,
+        reason: inputData.reason
+      };
+
+      google.script.run
+        .withSuccessHandler((res) => {
+          Swal.fire(
+            res.success ? 'সফল!' : 'ব্যর্থ',
+            res.message,
+            res.success ? 'success' : 'error'
+          );
+        })
+        .submitCorrection(reqPayload);
+    }
+  </script>
+</body>
+</html>
